@@ -9,8 +9,11 @@ import (
 )
 
 func main() {
+	r := newRoom()
 	http.Handle("/", &templateHandler{filename: "chat.html"})
+	http.Handle("/room", r)
 
+	go r.run()
 	// start the web server
 	if err := http.ListenAndServe(":8081", nil); err != nil {
 		log.Fatal("ListenAndServe:", err)
