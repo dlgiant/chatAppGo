@@ -34,7 +34,11 @@ func main() {
 	r := newRoom()
 	r.tracer = trace.New(os.Stdout)
 
+	// If Bootstrap or other packages were being served with my own copy:
+	// http.Handle("/assets/", http.StripPrefix("/assets", http.FileServer(http.Dir("/path/to/assets"))))
+
 	http.Handle("/chat", MustAuth(&templateHandler{filename: "chat.html"}))
+	http.Handle("/login", &templateHandler{filename: "login.html"})
 	http.Handle("/room", r)
 
 	go r.run()
