@@ -17,7 +17,7 @@ func (h *authHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	if err != nil {
 		// Handle any other error
-		http.Error(w, err.Error(), http.StatusInternalServiceError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	// In case of success, call the next handler
