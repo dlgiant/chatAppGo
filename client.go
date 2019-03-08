@@ -14,9 +14,14 @@ import (
 // send 	creates an array of bytes
 // room 	get reference to room object
 type client struct {
+	// socket is the websocket for this client
 	socket *websocket.Conn
-	send   chan []byte
-	room   *room
+	// send is a channel on which messages are sent
+	send chan *message
+	// room is the room this client is chating in
+	room *room
+	// userData holds the infomation about the users
+	userData map[string]interface{}
 }
 
 // read method
