@@ -84,7 +84,7 @@ func (r *room) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	// client holds a room reference
 	client := &client{
 		socket: socket,
-		send:   make(chan []byte, messageBufferSize),
+		send:   make(chan *message, messageBufferSize),
 		room:   r,
 	}
 
