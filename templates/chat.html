@@ -42,7 +42,14 @@
 						alert("Connection has been closed.");
 					}
 					socket.onmessage = function(e) {
-						messages.append($("<li>").text(e.data));
+						var msg = JSON.parse(e.data)
+						messages.append(
+							$("<li>").append(
+									$("<strong>").text(msg.Name + ": "),
+									$("<span>").text(msg.Message)
+							)
+						);
+						// messages.append($("<li>").text(msg));
 					}
 				}
 			});
