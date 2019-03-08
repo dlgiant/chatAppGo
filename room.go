@@ -16,7 +16,7 @@ import (
 // clients holds a boolean map that uses client references as keys
 // tracer holds a Tracer object to report on tests
 type room struct {
-	forward chan []byte
+	forward chan *message
 	join    chan *client
 	leave   chan *client
 	clients map[*client]bool
@@ -27,7 +27,7 @@ type room struct {
 // to a room
 func newRoom() *room {
 	return &room{
-		forward: make(chan []byte),
+		forward: make(chan *message),
 		join:    make(chan *client),
 		leave:   make(chan *client),
 		clients: make(map[*client]bool),
@@ -54,7 +54,7 @@ func (r *room) run() {
 			r.tracer.Trace("Client left")
 		// msg receives a byte array dequeued from the forward channel
 		case msg := <-r.forward:
-			r.tracer.Trace("Message received: ", string(msg))
+			r.tracer.Trace("Message received: ", msg.Message)
 			// for every client in the client map, place the byte array in the send channel
 			for client := range r.clients {
 				client.send <- msg
@@ -88,7 +88,7 @@ func (r *room) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		room:   r,
 	}
 
-	// the reference to client is given to a reference channel
+	// the reference to client is given to a room channel
 	r.join <- client
 	// the reference to client is not put in the leave channel until
 	defer func() { r.leave <- client }()
