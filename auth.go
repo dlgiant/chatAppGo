@@ -14,20 +14,19 @@ type authHandler struct {
 }
 
 func (h *authHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("auth")
-	if err == http.ErrNoCookie || cookie.Value == "" {
+	if cookie, err := r.Cookie("auth"); err == http.ErrNoCookie || cookie.Value == "" {
 		// User was not authenticated
 		w.Header().Set("Location", "/login")
 		w.WriteHeader(http.StatusTemporaryRedirect)
 		return
-	}
-	if err != nil {
+	} else if err != nil {
 		// Handle any other error
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
+	} else {
+		// In case of success, call the next handler
+		h.next.ServeHTTP(w, r)
 	}
-	// In case of success, call the next handler
-	h.next.ServeHTTP(w, r)
 }
 
 func MustAuth(hd http.Handler) http.Handler {
