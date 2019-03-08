@@ -7,6 +7,7 @@ import (
 	"chatAppGo/trace"
 
 	"github.com/gorilla/websocket"
+	"github.com/stretchr/objx"
 )
 
 // chat room
@@ -79,15 +80,20 @@ func (r *room) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		log.Fatal("ServeHTTP:", err)
 		return
 	}
+	authCookie, err := req.Cookie("auth")
+	if err != nil {
+		log.Fatal("Failed to get auth cookie:", err)
+		return
+	}
 	// socket is connected to client
 	// send is created as a channel array
 	// client holds a room reference
 	client := &client{
-		socket: socket,
-		send:   make(chan *message, messageBufferSize),
-		room:   r,
+		socket:   socket,
+		send:     make(chan *message, messageBufferSize),
+		room:     r,
+		userData: objx.MustFromBase64(authCookie.Value),
 	}
-
 	// the reference to client is given to a room channel
 	r.join <- client
 	// the reference to client is not put in the leave channel until
