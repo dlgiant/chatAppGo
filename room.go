@@ -27,14 +27,13 @@ type room struct {
 
 // newRoom is a helper function that returns the reference
 // to a room
-func newRoom(avatar Avatar) *room {
+func newRoom() *room {
 	return &room{
 		forward: make(chan *message),
 		join:    make(chan *client),
 		leave:   make(chan *client),
 		clients: make(map[*client]bool),
 		tracer:  trace.Off(),
-		avatar:  avatar,
 	}
 }
 
@@ -57,7 +56,7 @@ func (r *room) run() {
 			r.tracer.Trace("Client left")
 		// msg receives a byte array dequeued from the forward channel
 		case msg := <-r.forward:
-			r.tracer.Trace("Message received: ", msg.Message)
+			r.tracer.Trace("Message received: ", string(msg.Message))
 			// for every client in the client map, place the byte array in the send channel
 			for client := range r.clients {
 				client.send <- msg
@@ -73,7 +72,10 @@ const (
 )
 
 // reference to a websocket.Upgrader is given to upgrader
-var upgrader = &websocket.Upgrader{ReadBufferSize: socketBufferSize, WriteBufferSize: socketBufferSize}
+var upgrader = &websocket.Upgrader{
+	ReadBufferSize:  socketBufferSize,
+	WriteBufferSize: socketBufferSize,
+}
 
 // ServeHTTP method using a room reference
 func (r *room) ServeHTTP(w http.ResponseWriter, req *http.Request) {
